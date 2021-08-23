@@ -2,9 +2,9 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Categories on 程式讀書會 共筆紀錄</title>
-    <link>/categories/</link>
+    <link>https://fcucssc.github.io/collab/categories/</link>
     <description>Recent content in Categories on 程式讀書會 共筆紀錄</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>zh-tw</language><atom:link href="/categories/index.xml" rel="self" type="application/rss+xml" />
+    <language>zh-tw</language><atom:link href="https://fcucssc.github.io/collab/categories/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

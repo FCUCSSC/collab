@@ -2,27 +2,27 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>程式讀書會 共筆紀錄</title>
-    <link>/</link>
+    <link>https://fcucssc.github.io/collab/</link>
     <description>Recent content on 程式讀書會 共筆紀錄</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-tw</language>
-    <lastBuildDate>Mon, 23 Aug 2021 11:04:14 +0800</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 23 Aug 2021 11:04:14 +0800</lastBuildDate><atom:link href="https://fcucssc.github.io/collab/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>關於 逢甲資工 程式讀書會</title>
-      <link>/about/</link>
+      <link>https://fcucssc.github.io/collab/about/</link>
       <pubDate>Mon, 23 Aug 2021 14:55:28 +0800</pubDate>
       
-      <guid>/about/</guid>
+      <guid>https://fcucssc.github.io/collab/about/</guid>
       <description>介紹 我們是一群對程式懷抱熱誠的大學生，聚在一塊分享知識，希望能夠幫助更多同學一起成長。
 聯絡資訊  Discord Github  </description>
     </item>
     
     <item>
       <title>First</title>
-      <link>/posts/first/</link>
+      <link>https://fcucssc.github.io/collab/posts/first/</link>
       <pubDate>Mon, 23 Aug 2021 11:04:14 +0800</pubDate>
       
-      <guid>/posts/first/</guid>
+      <guid>https://fcucssc.github.io/collab/posts/first/</guid>
       <description>Hello World this is a test article</description>
     </item>
     

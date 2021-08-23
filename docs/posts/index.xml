@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on 程式讀書會 共筆紀錄</title>
-    <link>/posts/</link>
+    <link>https://fcucssc.github.io/collab/posts/</link>
     <description>Recent content in Posts on 程式讀書會 共筆紀錄</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-tw</language>
-    <lastBuildDate>Mon, 23 Aug 2021 11:04:14 +0800</lastBuildDate><atom:link href="/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 23 Aug 2021 11:04:14 +0800</lastBuildDate><atom:link href="https://fcucssc.github.io/collab/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>First</title>
-      <link>/posts/first/</link>
+      <link>https://fcucssc.github.io/collab/posts/first/</link>
       <pubDate>Mon, 23 Aug 2021 11:04:14 +0800</pubDate>
       
-      <guid>/posts/first/</guid>
+      <guid>https://fcucssc.github.io/collab/posts/first/</guid>
       <description>Hello World this is a test article</description>
     </item>
     

@@ -3,7 +3,7 @@ languageCode: zh-tw
 title: "程式讀書會 共筆紀錄"
 pygmentsUseClasses: true # enable theme-defined highlight style
 # pygmentsCodefences: true
-
+baseURL: https://fcucssc.github.io/collab/
 menu:
   main:
     - identifier: posts
