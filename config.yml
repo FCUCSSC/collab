@@ -1,0 +1,46 @@
+theme: fluency
+languageCode: zh-tw
+title: "程式讀書會 共筆紀錄"
+pygmentsUseClasses: true # enable theme-defined highlight style
+# pygmentsCodefences: true
+
+menu:
+  main:
+    - identifier: posts
+      name: 共筆文章
+      url: posts/
+      weight: -40
+    - identifier: tags
+      name: 分類標籤
+      url: tags/
+      weight: -30
+    - identifier: discord
+      name: Discord
+      url: https://discord.gg/TMkuzReRtA
+      weight: -20
+    - identifier: about
+      name: 關於我們
+      url: about/
+      weight: -10
+  footer:
+    - identifier: github
+      url: "https://github.com/FCUCSSC"
+      name: Github
+    - identifier: discord
+      url: "https://discord.gg/XMW34eyBqV"
+      name: Discord
+params:
+  pageSize:
+    index: 5
+    list: 10
+    terms: 60
+    archives: 20
+  copyright: "© 2021 逢甲程式讀書會"
+  mainSections:
+    - posts
+    - pics
+  disableComment: false
+  disableCommentByType:
+    - page
+  thirdPartyComment: |
+    this is your comment
