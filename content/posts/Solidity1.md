@@ -44,15 +44,15 @@ tags: ["麻塔巴巴", "NodeJS", "JavaScript", "Crypto"]
 	+ [安裝node.js](https://nodejs.org/en/)
 	+ 安裝完後打開你的命令提示字元(CMD)
 	+ 輸入指令 
-	```
-		npm install -g @remix-project/remixd
-	```
+		```bash
+			npm install -g @remix-project/remixd
+		```
 	+ 然後執行指令
 	+ remixd -s <本地資料夾> --remix-ide <remix 網址>
-	+ 例如
-	```
-	remixd -s C:\Users\user\Desktop\Remix remixd-ide https://nodejs.org/en/
-	```
+	+ 例如:
+		```bash
+		remixd -s C:\Users\user\Desktop\Remix remixd-ide https://nodejs.org/en/
+		```
 	+ ![](https://i.imgur.com/dyKujXk.png)
 	+ ![](https://i.imgur.com/XujLwEA.png)
 	+ ![](https://i.imgur.com/oXT4TSr.png)
