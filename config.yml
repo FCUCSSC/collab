@@ -47,4 +47,5 @@ params:
   publishDir: docs
   enableRobotsTXT: true
   hasCJKLanguage: true
-  timeZone: Asia/Taipei 
+  timeZone: Asia/Taipei
+  summaryLength: 35 
