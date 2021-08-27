@@ -45,3 +45,6 @@ params:
   thirdPartyComment: |
     this is your comment
   publishDir: docs
+  enableRobotsTXT: true
+  hasCJKLanguage: true
+  timeZone: Asia/Taipei 
