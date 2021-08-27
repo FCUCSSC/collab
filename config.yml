@@ -44,3 +44,4 @@ params:
     - page
   thirdPartyComment: |
     this is your comment
+  publishDir: docs
