@@ -1,11 +1,9 @@
 ---
-title: "Solidity1"
+title: "智能合約(Smart contrast)"
 date: 2021-08-27T10:48:34+08:00
 draft: false
 tags: ["麻塔巴巴", "NodeJS", "JavaScript", "Crypto"]
 ---
-
-# 智能合約(Smart contrast)
 **智能合約** 就是一段在區塊鏈上執行的程式碼
 
 當我們將智能合約部署至區塊鏈上後，我們便能依照智能合約上的內容進行交易，常見以 Solidity 撰寫。
