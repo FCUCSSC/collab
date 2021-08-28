@@ -156,8 +156,8 @@ comment
 <li>
 <p>打開 Powershell，執行</p>
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-powershell data-lang=powershell><span class=n>hugo</span> <span class=n>version</span>
-</code></pre></div><p>``
-應會看到類似以下範例的訊息，沒有噴錯的話就算成功了</p>
+</code></pre></div><p>``</p>
+<p>應會看到類似以下範例的訊息，沒有噴錯的話就算成功了</p>
 <pre><code>hugo v0.87.0-B0C541E4+extended windows/amd64 BuildDate=2021-08-03T10:57:28Z VendorInfo=gohugoio
 </code></pre><p>``</p>
 </li>
@@ -170,21 +170,25 @@ comment
 <p>生成文章</p>
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=nb>cd</span> collab
 hugo new posts/2021_08_28_test.md
-</code></pre></div><p>``
-文章檔名參考上方 <a href=#%E6%AA%94%E6%A1%88%E5%90%8D%E7%A8%B1>檔案名稱</a></p>
+</code></pre></div><p>``</p>
+<p>文章檔名參考上方 <a href=#%E6%AA%94%E6%A1%88%E5%90%8D%E7%A8%B1>檔案名稱</a></p>
 <p>將在檔案內撰寫欲上傳的文章後存檔，使用 git 提交。</p>
 </li>
 <li>
 <p>提交<br>
 在此有兩個提交方式</p>
 <ul>
-<li>使用 Git
+<li>
+<p>使用 Git</p>
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash>git add content/posts/2021_08_28_test.md
 git commit -m <span class=s2>&#34;提交文章 2021_08_28_test&#34;</span>
 git push origin master
-</code></pre></div><pre><code></code></pre></li>
-<li>使用 Github 網站<br>
-在 <a href=https://github.com/FCUCSSC/collab/tree/master/content/posts>content/posts/</a> 中新增檔案，貼上整個 md 內容後提交。</li>
+</code></pre></div><pre><code>
+</code></pre></li>
+<li>
+<p>使用 Github 網站<br>
+在 <a href=https://github.com/FCUCSSC/collab/tree/master/content/posts>content/posts/</a> 中新增檔案，貼上整個 md 內容後提交。</p>
+</li>
 </ul>
 <p>此後等待數秒，網站應會在一分鐘內更新內容。</p>
 </li>
