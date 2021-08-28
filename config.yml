@@ -39,7 +39,7 @@ params:
   mainSections:
     - posts
     - pics
-  disableComment: false
+  disableComment: true
   disableCommentByType:
     - page
   thirdPartyComment: |
