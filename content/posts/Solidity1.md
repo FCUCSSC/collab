@@ -13,6 +13,7 @@ tags: ["麻塔巴巴", "NodeJS", "JavaScript", "Crypto"]
 + 智能合約一旦部署至區塊鏈上後便無法修改
 + 可以公開檢視智能合約
 + 如果不相信和你交易的人? 至少你能相信程式碼
+
 ## Solidity
 + 具圖靈完備性
 + 和 Javascript 相似
