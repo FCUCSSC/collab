@@ -7,5 +7,5 @@ draft: false
 我們是一群對程式懷抱熱誠的大學生，聚在一塊分享知識，希望能夠幫助更多同學一起成長。
 
 ## 聯絡資訊
-- [Discord](https://discord.gg/TMkuzReRtA)
+- [Discord](https://discord.gg/XMW34eyBqV)
 - [Github](https://github.com/FCUCSSC)
