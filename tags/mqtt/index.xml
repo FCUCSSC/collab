@@ -1,11 +1,2 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>MQTT on 程式讀書會 共筆紀錄</title><link>https://fcucssc.github.io/collab/tags/mqtt/</link><description>Recent content in MQTT on 程式讀書會 共筆紀錄</description><generator>Hugo -- gohugo.io</generator><language>zh-tw</language><lastBuildDate>Sat, 20 Nov 2021 15:00:00 +0800</lastBuildDate><atom:link href="https://fcucssc.github.io/collab/tags/mqtt/index.xml" rel="self" type="application/rss+xml"/><item><title>MQTT</title><link>https://fcucssc.github.io/collab/posts/2021_11_20_mqtt/</link><pubDate>Sat, 20 Nov 2021 15:00:00 +0800</pubDate><guid>https://fcucssc.github.io/collab/posts/2021_11_20_mqtt/</guid><description>MQTT 本文將簡介 MQTT協定、運作方式、架設訊息代理，以及示範如何用程式實現基本的訊息發布和接收。
-目錄 [Toc]
-概要 訊息佇列遙測傳輸（Message Queuing Telemetry Transport），基於 發布 (Publish)/訂閱 (Subscribe) 範式的訊息協定，可視為「資料傳遞的橋梁」。 它在 TCP/IP協定族上，為硬體效能低下的遠端裝置以及網路狀況糟糕的情況下而設計的訊息協定，為此，它需要一個訊息中介軟體，以解決當前繁重的資料傳輸協定，如：HTTP。
-目前 MQTT 大多用在 物聯網(IoT)，如 Amazon Iot、Microsoft Azure Iot Hub等，其餘用途如 Facebook Messenger。
-訊息接受 透過 主題（topic ) 管理。發布者需要分發的資料時，其向連接的訊息代理(mqtt broker)發送帶有資料的控制訊息。代理會向訂閱此主題的客戶端分發此資料。( 發布者不需要知道訂閱者的資料和具體位置；同樣，訂閱者不需要組態發布者的相關資訊)
-如果訊息代理接受到某個主題上的訊息，且這個主題沒有任何訂閱，那麼代理就會丟棄，除非發布者將其標記為保留訊息（retained message）。
-Topic 訂閱 topic，才能收到根據該 topic 所發布的訊息。
-格式:
-topic是個utf-8編碼的字串，可由多個'/&amp;lsquo;分割開。 加號+為單級萬用字元，如：check/+/baseline ＃號為多級萬用字元，必須放在topic的最後，前一個字元必須是&amp;rsquo;/' $號被保留，用於broker內部的統計資訊。 建議topic中不要包含空格符。 Websocket 一個基於 TCP 連接上全雙工通信。使得普通的網頁瀏覽器成為基於 WebSocket 的 MQTT client。
-此處將不多加介紹 Websocket，但之後會有範例是 MQTT over Websocket (下方 Javascript)，故於此作簡介，詳細內容可參考:
-WebSocket MQTT 和 Websocket 的區別 MQTT Broker 此處將指導如何將本機 (此處為 windows) 作為 mqtt broker。 圖文詳細教學可參考 此文 的前半段，以下內容僅將此文濃縮。</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>MQTT on 程式讀書會 共筆紀錄</title><link>https://fcucssc.github.io/collab/tags/mqtt/</link><description>Recent content in MQTT on 程式讀書會 共筆紀錄</description><generator>Hugo -- gohugo.io</generator><language>zh-tw</language><lastBuildDate>Sat, 20 Nov 2021 15:00:00 +0800</lastBuildDate><atom:link href="https://fcucssc.github.io/collab/tags/mqtt/index.xml" rel="self" type="application/rss+xml"/><item><title>MQTT</title><link>https://fcucssc.github.io/collab/posts/2021_11_20_mqtt/</link><pubDate>Sat, 20 Nov 2021 15:00:00 +0800</pubDate><guid>https://fcucssc.github.io/collab/posts/2021_11_20_mqtt/</guid><description>&lt;h1 id="mqtt">MQTT&lt;/h1>
+&lt;p>本文將簡介 MQTT協定、運作方式、架設訊息代理，以及示範如何用程式實現基本的訊息發布和接收。&lt;/p></description></item></channel></rss>
