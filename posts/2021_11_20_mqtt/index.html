@@ -1,0 +1,438 @@
+<!doctype html><html lang=zh-tw prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
+<head lang=zh-tw>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<meta name=HandheldFriendly content="True">
+<meta name=MobileOptimized content="320">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=color-scheme content="dark light">
+<meta name=description content="MQTT 本文將簡介 MQTT協定、運作方式、架設訊息代理，以及示範如何用程式實現基本的訊息發布和接收。
+目錄 [Toc]
+概要 訊息佇列遙測傳輸（Message Queuing Telemetry Transport），基於 發布 (Publish)/訂閱 (Subscribe) 範式的訊息協定，可視為「資料傳遞的橋梁」。 它在 TCP/IP協定族上，為硬體效能低下的遠端裝置以及網路狀況糟糕的情況下而設計的訊息協定，為此，它需要一個訊息中介軟體，以解決當前繁重的資料傳輸協定，如：HTTP。
+目前 MQTT 大多用在 物聯網(IoT)，如 Amazon Iot、Microsoft Azure Iot Hub等，其餘用途如 Facebook Messenger。
+訊息接受 透過 主題（topic ) 管理。發布者需要分發的資料時，其向連接的訊息代理(mqtt broker)發送帶有資料的控制訊息。代理會向訂閱此主題的客戶端分發此資料。( 發布者不需要知道訂閱者的資料和具體位置；同樣，訂閱者不需要組態發布者的相關資訊)
+如果訊息代理接受到某個主題上的訊息，且這個主題沒有任何訂閱，那麼代理就會丟棄，除非發布者將其標記為保留訊息（retained message）。
+Topic 訂閱 topic，才能收到根據該 topic 所發布的訊息。
+格式:
+ topic是個utf-8編碼的字串，可由多個'/&lsquo;分割開。 加號+為單級萬用字元，如：check/+/baseline ＃號為多級萬用字元，必須放在topic的最後，前一個字元必須是&rsquo;/' $號被保留，用於broker內部的統計資訊。 建議topic中不要包含空格符。  Websocket 一個基於 TCP 連接上全雙工通信。使得普通的網頁瀏覽器成為基於 WebSocket 的 MQTT client。
+此處將不多加介紹 Websocket，但之後會有範例是 MQTT over Websocket (下方 Javascript)，故於此作簡介，詳細內容可參考:
+ WebSocket MQTT 和 Websocket 的區別  MQTT Broker 此處將指導如何將本機 (此處為 windows) 作為 mqtt broker。 圖文詳細教學可參考 此文 的前半段，以下內容僅將此文濃縮。">
+<meta name=author content>
+<meta name=keywords content="耘,MQTT,IoT">
+<title>MQTT | 程式讀書會 共筆紀錄</title>
+<link rel=canonical href=https://fcucssc.github.io/collab/posts/2021_11_20_mqtt/>
+<meta property="og:type" content="article">
+<meta property="og:description" content="MQTT 本文將簡介 MQTT協定、運作方式、架設訊息代理，以及示範如何用程式實現基本的訊息發布和接收。
+目錄 [Toc]
+概要 訊息佇列遙測傳輸（Message Queuing Telemetry Transport），基於 發布 (Publish)/訂閱 (Subscribe) 範式的訊息協定，可視為「資料傳遞的橋梁」。 它在 TCP/IP協定族上，為硬體效能低下的遠端裝置以及網路狀況糟糕的情況下而設計的訊息協定，為此，它需要一個訊息中介軟體，以解決當前繁重的資料傳輸協定，如：HTTP。
+目前 MQTT 大多用在 物聯網(IoT)，如 Amazon Iot、Microsoft Azure Iot Hub等，其餘用途如 Facebook Messenger。
+訊息接受 透過 主題（topic ) 管理。發布者需要分發的資料時，其向連接的訊息代理(mqtt broker)發送帶有資料的控制訊息。代理會向訂閱此主題的客戶端分發此資料。( 發布者不需要知道訂閱者的資料和具體位置；同樣，訂閱者不需要組態發布者的相關資訊)
+如果訊息代理接受到某個主題上的訊息，且這個主題沒有任何訂閱，那麼代理就會丟棄，除非發布者將其標記為保留訊息（retained message）。
+Topic 訂閱 topic，才能收到根據該 topic 所發布的訊息。
+格式:
+ topic是個utf-8編碼的字串，可由多個'/&lsquo;分割開。 加號+為單級萬用字元，如：check/+/baseline ＃號為多級萬用字元，必須放在topic的最後，前一個字元必須是&rsquo;/' $號被保留，用於broker內部的統計資訊。 建議topic中不要包含空格符。  Websocket 一個基於 TCP 連接上全雙工通信。使得普通的網頁瀏覽器成為基於 WebSocket 的 MQTT client。
+此處將不多加介紹 Websocket，但之後會有範例是 MQTT over Websocket (下方 Javascript)，故於此作簡介，詳細內容可參考:
+ WebSocket MQTT 和 Websocket 的區別  MQTT Broker 此處將指導如何將本機 (此處為 windows) 作為 mqtt broker。 圖文詳細教學可參考 此文 的前半段，以下內容僅將此文濃縮。">
+<meta property="og:title" content="MQTT">
+<meta property="og:site_name" content="程式讀書會 共筆紀錄">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:url" content="https://fcucssc.github.io/collab/posts/2021_11_20_mqtt/">
+<meta property="og:locale" content="zh-tw">
+<meta property="article:published_time" content="2021-11-20">
+<meta property="article:modified_time" content="2021-11-20">
+<meta property="article:tag" content="耘">
+<meta property="article:tag" content="MQTT">
+<meta property="article:tag" content="IoT">
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="MQTT | 程式讀書會 共筆紀錄">
+<meta name=twitter:description content="MQTT 本文將簡介 MQTT協定、運作方式、架設訊息代理，以及示範如何用程式實現基本的訊息發布和接收。
+目錄 [Toc]
+概要 訊息佇列遙測傳輸（Message Queuing Telemetry Transport），基於 發布 (Publish)/訂閱 (Subscribe) 範式的訊息協定，可視為「資料傳遞的橋梁」。 它在 TCP/IP協定族上，為硬體效能低下的遠端裝置以及網路狀況糟糕的情況下而設計的訊息協定，為此，它需要一個訊息中介軟體，以解決當前繁重的資料傳輸協定，如：HTTP。
+目前 MQTT 大多用在 物聯網(IoT)，如 Amazon Iot、Microsoft Azure Iot Hub等，其餘用途如 Facebook Messenger。
+訊息接受 透過 主題（topic ) 管理。發布者需要分發的資料時，其向連接的訊息代理(mqtt broker)發送帶有資料的控制訊息。代理會向訂閱此主題的客戶端分發此資料。( 發布者不需要知道訂閱者的資料和具體位置；同樣，訂閱者不需要組態發布者的相關資訊)
+如果訊息代理接受到某個主題上的訊息，且這個主題沒有任何訂閱，那麼代理就會丟棄，除非發布者將其標記為保留訊息（retained message）。
+Topic 訂閱 topic，才能收到根據該 topic 所發布的訊息。
+格式:
+ topic是個utf-8編碼的字串，可由多個'/&lsquo;分割開。 加號+為單級萬用字元，如：check/+/baseline ＃號為多級萬用字元，必須放在topic的最後，前一個字元必須是&rsquo;/' $號被保留，用於broker內部的統計資訊。 建議topic中不要包含空格符。  Websocket 一個基於 TCP 連接上全雙工通信。使得普通的網頁瀏覽器成為基於 WebSocket 的 MQTT client。
+此處將不多加介紹 Websocket，但之後會有範例是 MQTT over Websocket (下方 Javascript)，故於此作簡介，詳細內容可參考:
+ WebSocket MQTT 和 Websocket 的區別  MQTT Broker 此處將指導如何將本機 (此處為 windows) 作為 mqtt broker。 圖文詳細教學可參考 此文 的前半段，以下內容僅將此文濃縮。">
+<meta name=twitter:domain content="https://fcucssc.github.io/collab/posts/2021_11_20_mqtt/">
+<link rel=stylesheet href=//cdn.jsdelivr.net/npm/modern-normalize@1.0.0/modern-normalize.min.css>
+<link rel=stylesheet href=https://fcucssc.github.io/collab/style.min.24dece96ebe77a911ff4af20cffc54f5b46ee96ad7e33f168e1af342b043ec26.css integrity="sha256-JN7OluvnepEf9K8gz/xU9bRu6WrX4z8WjhrzQrBD7CY=" rel="preload stylesheet" as=style>
+</head>
+<body>
+<script>const currentTheme=window.localStorage.getItem('theme');currentTheme==="dark"?document.body.classList.toggle("theme-dark"):currentTheme=="light"&&document.body.classList.toggle("theme-light")</script>
+<header id=header>
+<div class=row>
+<div class="container has-padding nav">
+<button id=navbar-toggler class=navbar-button aria-hidden=true><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M64 384h384v-42.67H64zm0-106.67h384v-42.66H64zM64 128v42.67h384V128z"/></svg>
+</button>
+<div class=navbar-brand>
+<a class="logo navbar-button" href=https://fcucssc.github.io/collab/ title="程式讀書會 共筆紀錄">
+<span>程式讀書會 共筆紀錄</span>
+</a>
+</div>
+<nav class=navbar role=navigation>
+<ul>
+<li class="nav-bar-item active">
+<a class="nav-link navbar-button" href=/collab/posts/ title=共筆文章>
+<span>共筆文章</span>
+</a>
+</li>
+<li class=nav-bar-item>
+<a class="nav-link navbar-button" href=/collab/tags/ title=分類標籤>
+<span>分類標籤</span>
+</a>
+</li>
+<li class=nav-bar-item>
+<a class="nav-link navbar-button" href=https://discord.gg/XMW34eyBqV title=Discord>
+<span>discord</span>
+</a>
+</li>
+<li class=nav-bar-item>
+<a class="nav-link navbar-button" href=/collab/about/ title=關於我們>
+<span>關於我們</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class=theme-selector>
+<button class="button is-text" id=theme-selector-button title="toggle theme">
+<span class="label icon"><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M256 32C132.29 32 32 132.29 32 256s100.29 224 224 224 224-100.29 224-224S379.71 32 256 32zM128.72 383.28A180 180 0 01256 76v360a178.82 178.82.0 01-127.28-52.72z"/></svg>
+</span>
+</button>
+</div>
+</div>
+<div class="container has-padding">
+<div class=breadcrumb>
+<ol class=breadcrumb-nav>
+<li>
+<a href=https://fcucssc.github.io/collab/>Home</a>
+</li>
+<li>
+<a href=https://fcucssc.github.io/collab/posts/>Posts</a>
+</li>
+<li class=active>
+<a href=https://fcucssc.github.io/collab/posts/2021_11_20_mqtt/>MQTT</a>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</header>
+<main id=main>
+<div class="container has-padding">
+<div class="article-card post single">
+<h1 class=title>MQTT</h1>
+<div class=post-info>
+<span><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M32 456a24 24 0 0024 24h4e2a24 24 0 0024-24V176H32zm320-244a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm0 80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm-80-80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm0 80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm0 80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm-80-80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm0 80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm-80-80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm0 80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zM456 64h-55.92V32h-48v32H159.92V32h-48v32H56A23.8 23.8.0 0032 87.77V144h448V87.77A23.8 23.8.0 00456 64z"/></svg>
+<time datetime=2021-11-20T15:00:00+0800 class=date>November 20, 2021</time></span>
+<span><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M256 48C141.13 48 48 141.13 48 256c0 114.69 93.32 208 208 208 114.86.0 208-93.14 208-208 0-114.69-93.31-208-208-208zm108 240H244a4 4 0 01-4-4V116a4 4 0 014-4h24a4 4 0 014 4v140h92a4 4 0 014 4v24a4 4 0 01-4 4z"/></svg>
+3 mins to read</span>
+<span>posts </span>
+</div>
+<article class="post-entry content">
+<h1 id=mqtt>MQTT</h1>
+<p>本文將簡介 MQTT協定、運作方式、架設訊息代理，以及示範如何用程式實現基本的訊息發布和接收。</p>
+<h2 id=目錄>目錄</h2>
+<p>[Toc]</p>
+<h2 id=概要>概要</h2>
+<p><strong>訊息佇列遙測傳輸（Message Queuing Telemetry Transport）</strong>，基於 <strong><a href=https://zh.wikipedia.org/wiki/%E5%8F%91%E5%B8%83/%E8%AE%A2%E9%98%85>發布 (Publish)/訂閱 (Subscribe)</a></strong> 範式的訊息協定，可視為「資料傳遞的橋梁」。
+它在 TCP/IP協定族上，為硬體效能低下的遠端裝置以及網路狀況糟糕的情況下而設計的訊息協定，為此，它需要一個訊息中介軟體，以解決當前繁重的資料傳輸協定，如：HTTP。</p>
+<p>目前 MQTT 大多用在 <strong>物聯網(IoT)</strong>，如 Amazon Iot、Microsoft Azure Iot Hub等，其餘用途如 Facebook Messenger。</p>
+<h2 id=訊息接受>訊息接受</h2>
+<p>透過 <strong>主題（topic )</strong> 管理。發布者需要分發的資料時，其向連接的訊息代理(mqtt broker)發送帶有資料的控制訊息。代理會向訂閱此主題的客戶端分發此資料。( 發布者不需要知道訂閱者的資料和具體位置；同樣，訂閱者不需要組態發布者的相關資訊)</p>
+<p>如果訊息代理接受到某個主題上的訊息，且這個主題沒有任何訂閱，那麼代理就會丟棄，除非發布者將其標記為保留訊息（retained message）。</p>
+<h2 id=topic>Topic</h2>
+<p>訂閱 topic，才能收到根據該 topic 所發布的訊息。</p>
+<p>格式:</p>
+<ul>
+<li>topic是個utf-8編碼的字串，可由多個'/&lsquo;分割開。</li>
+<li>加號+為單級萬用字元，如：check/+/baseline</li>
+<li>＃號為多級萬用字元，必須放在topic的最後，前一個字元必須是&rsquo;/'</li>
+<li>$號被保留，用於broker內部的統計資訊。</li>
+<li>建議topic中不要包含空格符。</li>
+</ul>
+<h2 id=websocket>Websocket</h2>
+<p>一個基於 TCP 連接上全雙工通信。使得普通的網頁瀏覽器成為基於 WebSocket 的 MQTT client。</p>
+<p>此處將不多加介紹 Websocket，但之後會有範例是 MQTT over Websocket (下方 Javascript)，故於此作簡介，詳細內容可參考:</p>
+<ul>
+<li><a href=https://zh.wikipedia.org/wiki/WebSocket>WebSocket</a></li>
+<li><a href=https://www.zhihu.com/question/21816631>MQTT 和 Websocket 的區別</a></li>
+</ul>
+<h2 id=mqtt-broker>MQTT Broker</h2>
+<p>此處將指導如何將本機 (此處為 windows) 作為 mqtt broker。
+圖文詳細教學可參考 <a href=https://jimirobot.tw/esp32-mosquitto-conf-mqtt-tutorial/>此文</a> 的前半段，以下內容僅將此文濃縮。</p>
+<ol>
+<li>
+<p>下載 <a href=https://mosquitto.org/download/>Eclipas Mosquitto</a>，並安裝 (建議安裝版本 <strong><a href=https://mosquitto.org/files/binary/win64/>2.0.10</a></strong> ，最新版的 2.0.13 似乎無法使用 websockets 連接)</p>
+</li>
+<li>
+<p>開啟防火牆 : 打開防火牆 -> 進階設定 -></p>
+<ul>
+<li>
+<p>選擇左側 <strong>輸入規則</strong> -> 右側 <strong>新增規則</strong> (此動作將打開一個視窗) -> 選擇 <strong>連接埠</strong> -> <strong>TCP</strong>、<strong>特定遠端連接埠: 1883, 1884</strong> -> <strong>允許連線</strong> -> 勾選 <strong>網域</strong>、<strong>私人</strong> -> <strong>MQTT Input - 1883, 184</strong> (此名稱可隨意打，僅方便管理)</p>
+</li>
+<li>
+<p>選擇左側 <strong>輸出規則</strong> -> 右側 <strong>新增規則</strong> (此動作將打開一個視窗) -> 選擇 <strong>連接埠</strong> -> <strong>TCP</strong>、<strong>特定遠端連接埠: 1883, 1884</strong> -> <strong>封鎖連線</strong> -> 勾選 <strong>網域</strong>、<strong>私人</strong> -> <strong>MQTT Output - 1883, 184</strong> (此名稱可隨意打，僅方便管理)</p>
+</li>
+</ul>
+</li>
+<li>
+<p>啟動 server : 打開剛剛安裝的 Eclipas Mosquitto 的位置(預設在 C:\Program Files\mosquitto)，並在此路徑打開 command(<strong>以系統身分管理員執行</strong>)</p>
+<ul>
+<li>
+<p>在此資料夾建立 <strong>userlist.txt</strong>，裡面輸入<code>user:test123</code>(此格式為 <strong>帳號:密碼</strong>，表示帳號為user 密碼為test123，多筆使用者帳密則以換行隔開)，存檔後關閉該檔案，在 command 輸入 <code>mosquitto_passwd.exe -U userlist.txt</code>再次打開 userlist.txt 會發現密碼的部分被加密過了</p>
+</li>
+<li>
+<p>打開 <strong>mosquitto.conf</strong> 在最下方加入(要存檔) :</p>
+<ul>
+<li>此處 allow_anonymous false 表示非匿名，需要帳號密碼驗證身分</li>
+<li>listener xxx 下一行需要接續 protocol yyy 表明所監聽的 port 使用的協定(<strong>mqtt</strong> or <strong>websockets</strong>)，未指定則預設 mqtt， 所以 1883 是 mqtt、1884 是 websockets</li>
+</ul>
+</li>
+</ul>
+<pre tabindex=0><code>allow_anonymous false
+password_file C:\Program Files\mosquitto\userlist.txt
+listener 1883
+
+listener 1884
+protocol websockets
+
+</code></pre><ul>
+<li>在 command 打入 :</li>
+</ul>
+<pre tabindex=0><code>mosquitto.exe -c mosquitto.conf -v
+
+</code></pre></li>
+<li>
+<p>到此若成功，會顯示如下圖(不要將其中斷或關閉) : <img src=https://i.imgur.com/MOluPWe.png alt></p>
+</li>
+<li>
+<p>若要關閉 broker 則按壓 ctrl + c 即可。</p>
+</li>
+</ol>
+<h2 id=publish--subscribe-demo>Publish / Subscribe Demo</h2>
+<p>以下之方法，皆可互相配合，並沒有一定要哪個收哪個送。</p>
+<h3 id=python>Python</h3>
+<ul>
+<li>參考版本 : 3.8.11</li>
+<li>必需模組 :
+<ul>
+<li><strong>paho-mqtt</strong> (1.6.0)</li>
+</ul>
+</li>
+<li>Subscribe.py
+<ul>
+<li>IP 是 mqtt broker 主機 IP (若用上一步驟架在本機，則此為本機 IP)</li>
+<li>PORT 用 1883，所以 19 行 transport=&ldquo;tcp&rdquo;；若用 1884，則 transport=&ldquo;websockets&rdquo;</li>
+<li>TOPIC 可自行定義</li>
+<li>USERNAME、PASSWORD 即剛剛 userlist.txt 所設置的帳號、密碼</li>
+</ul>
+</li>
+</ul>
+<pre tabindex=0><code class="language-python=" data-lang="python=">import paho.mqtt.client as mqtt
+
+HOST = &quot;140.134.16.24&quot;   # your host IP
+PORT = 1883
+TOPIC = &quot;MqttDemo&quot;
+USERNAME = &quot;user&quot;
+PASSWORD = &quot;test123&quot;
+
+def on_connect(client, userdata, flags, rc):
+    if str(rc) == '0':  # Status code, 0 is successful.
+          print(&quot;Connect successfully!&quot;)
+    else:
+        print(f&quot;Error: {str(rc)}&quot;)
+    client.subscribe(TOPIC)  # Subscribe the topic
+
+def on_message(client, userdata, msg):
+    print(msg.payload.decode(encoding=&quot;utf-8&quot;))
+
+client = mqtt.Client(transport=&quot;tcp&quot;)
+client.username_pw_set(USERNAME, PASSWORD)
+client.on_connect = on_connect
+client.on_message = on_message
+
+client.connect(HOST, PORT, 60)
+client.loop_forever()
+
+</code></pre><ul>
+<li>Publish.py
+<ul>
+<li>IP、PORT、USERNAMA、PASSWORD 與 上方相同</li>
+<li>PAYLOAD 為要送出的訊息</li>
+</ul>
+</li>
+</ul>
+<pre tabindex=0><code class="language-python=" data-lang="python=">import paho.mqtt.publish as publish
+
+HOST = &quot;140.134.16.24&quot;
+PORT = 1883
+TOPIC = &quot;MqttDemo&quot;
+PAYLOAD = &quot;This message from python.&quot;  # This message will be send.
+AUTH = {'username': &quot;user&quot;, 'password': &quot;test123&quot;}
+
+publish.single(topic=TOPIC, payload=PAYLOAD, hostname=HOST, port=PORT, auth=AUTH, transport=&quot;tcp&quot;)
+
+</code></pre><ul>
+<li>在啟動 mqtt server 的狀態下，執行 Subscribe.py 訂閱主題後(不要中斷)，再執行 Publish.py 發送訊息，即可在 Subscribe.py 看見如下圖 : <img src=https://i.imgur.com/QU66ThV.png alt></li>
+</ul>
+<h3 id=javascript>Javascript</h3>
+<ul>
+<li>
+<p>在網頁上，基於 Websockets</p>
+</li>
+<li>
+<p>IP、USERNAMA、PASSWORD、TOPIC、PAYLOAD 同 python</p>
+</li>
+<li>
+<p>PORT 必須為 1884 (websockets protocol)</p>
+</li>
+<li>
+<p>因為非匿名，所以需要帳號密碼，但會被撈到，因此 <strong>不建議此作法</strong>，此僅提供範例 (亦或者有其他用途或有方法可以隱蔽，但筆者尚未查到相關資料)
+</p>
+</li>
+<li>
+<p>index.html</p>
+</li>
+</ul>
+<pre tabindex=0><code class="language-htmlembedded=" data-lang="htmlembedded=">&lt;!doctype html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+  &lt;meta charset=&quot;utf-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no&quot;&gt;
+  &lt;title&gt;MQTT Demo&lt;/title&gt;
+  
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;mqtt.js&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+  &lt;h1&gt;MQTT Demo&lt;/h1&gt;
+  &lt;h2&gt;Receive message :&lt;/h2&gt;
+  &lt;p id=&quot;receive&quot;&gt;&lt;/p&gt;
+  &lt;button id=&quot;send&quot;&gt;Send&lt;/button&gt;
+&lt;/body&gt;
+    
+</code></pre><ul>
+<li>mqtt.js</li>
+</ul>
+<pre tabindex=0><code class="language-javascript=" data-lang="javascript=">const HOST = &quot;140.134.16.24&quot;;   // your host IP
+const PORT = 1884;  // must be 1884 (websockets protocol)
+const TOPIC = &quot;MqttDemo&quot;;
+const USERNAME = &quot;user&quot;;
+const PASSWORD = &quot;test123&quot;;
+const PAYLOAD = &quot;This message from javascript.&quot;
+var client = false;
+
+function onConnect() {
+    console.log(&quot;Connect successfully!&quot;);
+    client.subscribe(TOPIC);
+}
+
+function onMessageArrived(message) {
+    document.getElementById(&quot;receive&quot;).textContent = message.payloadString;
+    console.log(message.payloadString);
+}
+
+function publishMessage() {
+    var payload = PAYLOAD;
+    var message = new Paho.MQTT.Message(payload);
+    message.destinationName = TOPIC;
+    client.send(message);
+}
+
+function init() {
+    let clientId = &quot;Demo&quot;; // 自行指定，僅提供 MQTT broker 認證用
+    client = new Paho.MQTT.Client(`ws://${HOST}:${PORT}/mqtt`, clientId);
+    client.onMessageArrived = onMessageArrived;
+    client.connect({
+        onSuccess: onConnect,
+        userName: USERNAME,
+        password: PASSWORD,
+    });
+}
+
+window.onload = function(){
+    init();
+    document.getElementById(&quot;send&quot;).addEventListener('click', publishMessage);
+};
+
+</code></pre><ul>
+<li>點擊畫面上的按鈕後，應會出現如下圖 : <img src=https://i.imgur.com/nerhsyX.png alt></li>
+</ul>
+<h3 id=mqtt-explorer>MQTT Explorer</h3>
+<ul>
+<li>寫 code 好麻煩&mldr; 所以有人提供了操作介面的軟體</li>
+<li><a href=http://mqtt-explorer.com/>官方網站</a></li>
+<li>此軟體操作上滿直覺的，此處以圖解快速帶過</li>
+<li> <img src=https://i.imgur.com/tn98lc7.png alt></li>
+<li> <img src=https://i.imgur.com/l2eOhbt.png alt></li>
+</ul>
+<h2 id=後記>後記</h2>
+<p>在工作上接觸到 mqtt 而且 IoT 似乎是未來趨勢，特於此作筆記，方便未來查看。
+其實還有很多細節未提到，如 : QoS、Keep Alive、Retained Message、TLS，未來有時間再慢慢補上來。</p>
+</article>
+</div>
+<div class="meta article-card">
+<div class=row>
+<span class=label><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M32 456a24 24 0 0024 24h4e2a24 24 0 0024-24V176H32zm320-244a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm0 80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm-80-80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm0 80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm0 80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm-80-80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm0 80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm-80-80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zm0 80a4 4 0 014-4h40a4 4 0 014 4v40a4 4 0 01-4 4h-40a4 4 0 01-4-4zM456 64h-55.92V32h-48v32H159.92V32h-48v32H56A23.8 23.8.0 0032 87.77V144h448V87.77A23.8 23.8.0 00456 64z"/></svg>
+Published At</span><time>2021-11-20 07:00 UTC</time>
+</div>
+<div class=row>
+<span class=label><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M288 16 0 304l176 176 288-288V16zm80 128a32 32 0 1132-32 32 32 0 01-32 32z"/><path d="M480 64v144L216.9 471.1 242 496l270-272V64h-32z"/></svg>
+Tagged with</span>
+<ul class=tags>
+<li class=hashed-tag><a href=https://fcucssc.github.io/collab/tags/%E8%80%98>耘</a></li>
+<li class=hashed-tag><a href=https://fcucssc.github.io/collab/tags/mqtt>MQTT</a></li>
+<li class=hashed-tag><a href=https://fcucssc.github.io/collab/tags/iot>IoT</a></li>
+</ul>
+</div>
+<div class="row social-share">
+<span class=label><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M272 176v161h-32V176H92a12 12 0 00-12 12v280a12 12 0 0012 12h328a12 12 0 0012-12V188a12 12 0 00-12-12zm0-83.37 64 64L358.63 134 256 31.37 153.37 134 176 156.63l64-64V176h32V92.63z"/></svg>
+Share with</span>
+<a target=_blank title="share to reddit" rel="noopener noreferrer" aria-label="share MQTT on reddit" href="https://reddit.com/submit?url=https%3a%2f%2ffcucssc.github.io%2fcollab%2fposts%2f2021_11_20_mqtt%2f&title=MQTT"><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512" fill="currentcolor" stroke="currentcolor" stroke-width="10"><path d="M324 256a36 36 0 1036 36 36 36 0 00-36-36z"/><circle cx="188" cy="292" r="36" transform="rotate(-22.5 187.997 291.992)"/><path d="M496 253.77c0-31.19-25.14-56.56-56-56.56a55.72 55.72.0 00-35.61 12.86c-35-23.77-80.78-38.32-129.65-41.27l22-79 66.41 13.2c1.9 26.48 24 47.49 50.65 47.49 28 0 50.78-23 50.78-51.21S441 48 413 48c-19.53.0-36.31 11.19-44.85 28.77l-90-17.89-31.1 109.52-4.63.13c-50.63 2.21-98.34 16.93-134.77 41.53A55.38 55.38.0 0072 197.21c-30.89.0-56 25.37-56 56.56a56.43 56.43.0 0028.11 49.06 98.65 98.65.0 00-.89 13.34c.11 39.74 22.49 77 63 105C146.36 448.77 199.51 464 256 464s109.76-15.23 149.83-42.89c40.53-28 62.85-65.27 62.85-105.06a109.32 109.32.0 00-.84-13.3A56.32 56.32.0 00496 253.77zM414 75a24 24 0 11-24 24 24 24 0 0124-24zM42.72 253.77a29.6 29.6.0 0129.42-29.71 29 29 0 0113.62 3.43c-15.5 14.41-26.93 30.41-34.07 47.68a30.23 30.23.0 01-8.97-21.4zM390.82 399c-35.74 24.59-83.6 38.14-134.77 38.14S157 423.61 121.29 399c-33-22.79-51.24-52.26-51.24-83A78.5 78.5.0 0175 288.72c5.68-15.74 16.16-30.48 31.15-43.79a155.17 155.17.0 0114.76-11.53l.3-.21.24-.17c35.72-24.52 83.52-38 134.61-38s98.9 13.51 134.62 38l.23.17.34.25A156.57 156.57.0 01406 244.92c15 13.32 25.48 28.05 31.16 43.81a85.44 85.44.0 014.31 17.67 77.29 77.29.0 01.6 9.65c-.01 30.72-18.21 60.19-51.25 82.95zm69.6-123.92c-7.13-17.28-18.56-33.29-34.07-47.72A29.09 29.09.0 01440 224a29.59 29.59.0 0129.41 29.71 30.07 30.07.0 01-8.99 21.39z"/><path d="M323.23 362.22c-.25.25-25.56 26.07-67.15 26.27-42-.2-66.28-25.23-67.31-26.27a4.14 4.14.0 00-5.83.0l-13.7 13.47a4.15 4.15.0 000 5.89c3.4 3.4 34.7 34.23 86.78 34.45 51.94-.22 83.38-31.05 86.78-34.45a4.16 4.16.0 000-5.9l-13.71-13.47a4.13 4.13.0 00-5.81.0z"/></svg>
+</a>
+<a target=_blank title="share to twitter" rel="noopener noreferrer" aria-label="share MQTT on twitter" href="https://twitter.com/intent/tweet/?text=MQTT&url=https%3a%2f%2ffcucssc.github.io%2fcollab%2fposts%2f2021_11_20_mqtt%2f&hashtags=%e8%80%98%2cMQTT%2cIoT"><svg class="ionicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="fill:none" stroke="currentcolor" stroke-width="2"><path d="M23 3a10.9 10.9.0 01-3.14 1.53 4.48 4.48.0 00-7.86 3v1A10.66 10.66.0 013 4s-4 9 5 13a11.64 11.64.0 01-7 2c9 5 20 0 20-11.5a4.5 4.5.0 00-.08-.83A7.72 7.72.0 0023 3z"/></svg>
+</a>
+<a target=_blank title="share to facebook" rel="noopener noreferrer" aria-label="share MQTT on facebook" href="https://facebook.com/sharer/sharer.php?u=https%3a%2f%2ffcucssc.github.io%2fcollab%2fposts%2f2021_11_20_mqtt%2f"><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 24 24" style="fill:none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-facebook"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+</a>
+</div>
+</div>
+</div>
+</main>
+<footer id=footer>
+<div class="container has-padding is-flex">
+<ul class=links>
+<li>
+<a rel=nofollow target=_blank href=https://discord.gg/XMW34eyBqV title=Discord>Discord</a>
+</li>
+<li>
+<a rel=nofollow target=_blank href=https://github.com/FCUCSSC title=Github>Github</a>
+</li>
+<li>
+<a class="nav-link navbar-button" href=https://fcucssc.github.io/collab/index.xml type=application/rss+xml>RSS</a>
+</li>
+<li>
+<a rel=nofollow target=_blank href=https://github.com/wayjam/hugo-theme-fluency title="using Hugo theme fluency">
+Theme Fluency
+</a>
+</li>
+<li>
+<a rel=nofollow target=_blank href=https://gohugo.io title="Built with hugo">Built with Hugo</a>
+</li>
+</ul>
+<div class=copyright>
+© 2021 逢甲程式讀書會
+</div>
+</div>
+</footer>
+<script>window.FluencyCopyIcon='\n\n\n\n\n\n\n\u003csvg xmlns=\u0027http://www.w3.org/2000/svg\u0027 class=\u0027ionicon\u0027 viewBox=\u00270 0 512 512\u0027\u003e\u003crect x=\u0027128\u0027 y=\u0027128\u0027 width=\u0027336\u0027 height=\u0027336\u0027 rx=\u002757\u0027 ry=\u002757\u0027 stroke-linejoin=\u0027round\u0027 class=\u0027ionicon-fill-none ionicon-stroke-width\u0027/\u003e\u003cpath d=\u0027M383.5 128l.5-24a56.16 56.16 0 00-56-56H112a64.19 64.19 0 00-64 64v216a56.16 56.16 0 0056 56h24\u0027 stroke-linecap=\u0027round\u0027 stroke-linejoin=\u0027round\u0027 class=\u0027ionicon-fill-none ionicon-stroke-width\u0027/\u003e\u003c/svg\u003e\n\n\n\n\n\n\n\n\n\n\n'</script>
+<script defer src=https://fcucssc.github.io/collab/js/main.min.7685c4d03abca7fd02a772a2e64c7a8aa3a7031024bbab70a17975e8928cb004.js integrity="sha256-doXE0Dq8p/0Cp3Ki5kx6iqOnAxAku6twoXl16JKMsAQ=" crossorigin=anonymous async></script>
+<noscript>
+<style type=text/css>#theme-selector-button{display:none}</style>
+</noscript>
+</body>
+</html>
